@@ -2,6 +2,7 @@ package com.example.sqlitetutorial;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -16,7 +17,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     EditText etTeamName, etTeamYear;
-    Button btnAdd, btnView;
+    Button btnAdd, btnEdit;
     ListView lvTeams;
     ArrayAdapter teamArrayAdapter;
     DatabaseHelper databaseHelper;
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         btnAdd = findViewById(R.id.btnAdd);
-        btnView = findViewById(R.id.btnView);
+        btnEdit = findViewById(R.id.btnEdit);
         lvTeams = findViewById(R.id.lvTeams);
         etTeamName = findViewById(R.id.etTeamName);
         etTeamYear = findViewById(R.id.etTeamYear);
@@ -52,21 +53,16 @@ public class MainActivity extends AppCompatActivity {
 
                 databaseHelper.addOne(teamModel);
 
-
-
                 ShowTeamOnListView(databaseHelper);
-
             }
         });
 
-        btnView.setOnClickListener(new View.OnClickListener() {
+        btnEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                databaseHelper = new DatabaseHelper(MainActivity.this);
-                List<TeamModel> allTeams = databaseHelper.getAllTeams();
-
-                ShowTeamOnListView(databaseHelper);
+                Intent i = new Intent(MainActivity.this, EditActivity.class);
+                startActivity(i);
             }
         });
 
