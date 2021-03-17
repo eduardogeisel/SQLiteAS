@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -51,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
 
                 databaseHelper.addOne(teamModel);
 
+
+
                 ShowTeamOnListView(databaseHelper);
 
             }
@@ -69,6 +72,16 @@ public class MainActivity extends AppCompatActivity {
 
         //Calling these inside onCreate to show list as soon as app is opened
         ShowTeamOnListView(databaseHelper);
+
+        lvTeams.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                TeamModel clickedTeam = (TeamModel) parent.getItemAtPosition(position);
+                databaseHelper.deleteTeam(clickedTeam);
+                ShowTeamOnListView(databaseHelper);
+                Toast.makeText(MainActivity.this, "Deleted " + clickedTeam.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void ShowTeamOnListView(DatabaseHelper databaseHelper) {

@@ -88,7 +88,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     //delete function
-    public boolean deleteOneTeam(TeamModel teamModel){
+    public boolean deleteTeam(TeamModel teamModel){
 
         SQLiteDatabase db = this.getWritableDatabase();
         String queryStr = "DELETE FROM " + TEAM_TABLE + " WHERE " + COLUMN_ID + " = " + teamModel.getId();
