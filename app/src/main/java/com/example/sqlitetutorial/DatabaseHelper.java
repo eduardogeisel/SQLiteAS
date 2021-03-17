@@ -86,4 +86,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return returnList;
     }
+
+    //delete function
+    public boolean deleteOneTeam(TeamModel teamModel){
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        String queryStr = "DELETE FROM " + TEAM_TABLE + " WHERE " + COLUMN_ID + " = " + teamModel.getId();
+
+        Cursor cursor = db.rawQuery(queryStr, null);
+        if(cursor.moveToFirst()){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 }
