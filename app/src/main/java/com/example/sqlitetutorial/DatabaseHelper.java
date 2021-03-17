@@ -87,7 +87,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return returnList;
     }
 
-    //delete function
+    //delete method
     public boolean deleteTeam(TeamModel teamModel){
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -100,5 +100,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         else{
             return false;
         }
+    }
+
+    //update method
+    public void update(int id, String newName, String oldName, int newYear, int oldYear){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "UPDATE " + TEAM_TABLE + " SET " + COLUMN_TEAM_NAME + " = '" + newName + "' WHERE "
+                + COLUMN_ID + " = '" + id + "' AND " + COLUMN_TEAM_NAME + " = '" + oldName + "'";
+        String query2 =  "UPDATE " + TEAM_TABLE + " SET " + COLUMN_TEAM_SINCE + " = '" + newYear + "' WHERE "
+                + COLUMN_ID + " = '" + id + "' AND " + COLUMN_TEAM_SINCE + " = '" + oldYear + "'";
+
+        db.execSQL(query);
+        db.execSQL(query2);
     }
 }
