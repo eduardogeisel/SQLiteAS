@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -13,19 +14,23 @@ import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    public static final String TEAM_TABLE = "TEAM_TABLE";
+    private Context context;
+    private static final String DATABASE_NAME = "teams.db";
+    private static final int DATABASE_VERSION = 1;
+    public static final String TABLE_NAME = "TEAM_TABLE";
     public static final String COLUMN_TEAM_NAME = "TEAM_NAME";
     public static final String COLUMN_TEAM_SINCE = "TEAM_SINCE";
     public static final String COLUMN_ID = "ID";
 
+
     public DatabaseHelper(@Nullable Context context) {
-        super(context, "teams.db", null, 1);
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     //this is called the first time a database is accessed. There should be code here to create a new database
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createTableStatement = "CREATE TABLE " + TEAM_TABLE + " (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+        String createTableStatement = "CREATE TABLE " + TABLE_NAME + " (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COLUMN_TEAM_NAME + " TEXT, " + COLUMN_TEAM_SINCE + " INT)";
 
         db.execSQL(createTableStatement);
@@ -34,7 +39,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     //this is called if the database version number changes
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        onCreate(db);
     }
 
     public boolean addOne (TeamModel teamModel){
@@ -45,7 +51,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cv.put(COLUMN_TEAM_NAME, teamModel.getTeamName());
         cv.put(COLUMN_TEAM_SINCE, teamModel.getYearFounded());
 
-        long insert = db.insert(TEAM_TABLE, null, cv);
+        long insert = db.insert(TABLE_NAME, null, cv);
         if (insert == -1){
             return false;
         }
@@ -58,7 +64,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         List<TeamModel> returnList = new ArrayList<>();
 
-        String queryStr = "SELECT * FROM " + TEAM_TABLE;
+        String queryStr = "SELECT * FROM " + TABLE_NAME;
 
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -91,7 +97,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public boolean deleteTeam(TeamModel teamModel){
 
         SQLiteDatabase db = this.getWritableDatabase();
-        String queryStr = "DELETE FROM " + TEAM_TABLE + " WHERE " + COLUMN_ID + " = " + teamModel.getId();
+        String queryStr = "DELETE FROM " + TABLE_NAME + " WHERE " + COLUMN_ID + " = " + teamModel.getId();
 
         Cursor cursor = db.rawQuery(queryStr, null);
         if(cursor.moveToFirst()){
@@ -103,14 +109,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     //update method
-    public void update(int id, String newName, String oldName, int newYear, int oldYear){
+    public void update(String id, String teamName, String teamYear){
         SQLiteDatabase db = this.getWritableDatabase();
-        String query = "UPDATE " + TEAM_TABLE + " SET " + COLUMN_TEAM_NAME + " = '" + newName + "' WHERE "
-                + COLUMN_ID + " = '" + id + "' AND " + COLUMN_TEAM_NAME + " = '" + oldName + "'";
-        String query2 =  "UPDATE " + TEAM_TABLE + " SET " + COLUMN_TEAM_SINCE + " = '" + newYear + "' WHERE "
-                + COLUMN_ID + " = '" + id + "' AND " + COLUMN_TEAM_SINCE + " = '" + oldYear + "'";
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_TEAM_NAME, teamName);
+        cv.put(COLUMN_TEAM_SINCE, teamYear);
 
-        db.execSQL(query);
-        db.execSQL(query2);
+        long result = db.update(TABLE_NAME, cv, "ID=?", new String[]{id});
+        if(result == -1){
+            Toast.makeText(context, "Failed", Toast.LENGTH_SHORT).show();
+        }else {
+            Toast.makeText(context, "Added Successfully!", Toast.LENGTH_SHORT).show();
+        }
+
     }
 }
