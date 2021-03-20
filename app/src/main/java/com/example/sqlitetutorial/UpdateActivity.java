@@ -1,7 +1,10 @@
 package com.example.sqlitetutorial;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -10,39 +13,82 @@ import android.widget.Toast;
 
 public class UpdateActivity extends AppCompatActivity {
 
-    EditText etEditId, etEditName, etEditYear;
-    Button btnEditConfirm;
-    DatabaseHelper databaseHelper;
+    EditText input_name, input_year;
+    Button update_button, delete_button;
+
+    String id, name, year;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update);
 
-        etEditId = findViewById(R.id.etEditId);
-        etEditName = findViewById(R.id.etEditName);
-        etEditYear = findViewById(R.id.etEditYear);
-        btnEditConfirm = findViewById(R.id.btnEditConfirm);
+        input_name = findViewById(R.id.input_name_update);
+        input_year = findViewById(R.id.input_year_update);
+        update_button = findViewById(R.id.btn_update);
+        delete_button = findViewById(R.id.btn_delete);
 
-        databaseHelper = new DatabaseHelper(UpdateActivity.this);
+        //First we call this
+        getAndSetIntentData();
 
-        btnEditConfirm.setOnClickListener(new View.OnClickListener() {
+        //Set actionbar title after getAndSetIntentData method
+        ActionBar ab = getSupportActionBar();
+        if (ab != null) {
+            ab.setTitle(name);
+        }
+
+        update_button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                String id = etEditId.getText().toString();
-                String editName = etEditName.getText().toString();
-                String editYear = etEditYear.getText().toString();
-                int idInt = Integer.parseInt(id);
-                int editYearInt = Integer.parseInt(editYear);
-                if(id.equals("") || editName.equals("") || editYear.equals("")){
-                    Toast.makeText(UpdateActivity.this, "Add values to all text boxes", Toast.LENGTH_SHORT).show();
-                }
-                else{
-                    databaseHelper.update(idInt, editName, editYearInt);
-                }
+            public void onClick(View view) {
+                //And only then we call this
+                DatabaseHelper myDB = new DatabaseHelper(UpdateActivity.this);
+                name = input_name.getText().toString().trim();
+                year = input_year.getText().toString().trim();
+                myDB.updateData(id, name, year);
+            }
+        });
+        delete_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                confirmDialog();
+            }
+        });
+    }
+
+    void getAndSetIntentData(){
+        if(getIntent().hasExtra("id") && getIntent().hasExtra("name") && getIntent().hasExtra("year")){
+            //Getting Data from Intent
+            id = getIntent().getStringExtra("id");
+            name = getIntent().getStringExtra("name");
+            year = getIntent().getStringExtra("year");
+
+            //Setting Intent Data
+            input_name.setText(name);
+            input_year.setText(year);
+
+        }else{
+            Toast.makeText(this, "No data.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    void confirmDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Delete " + name + " ?");
+        builder.setMessage("Are you sure you want to delete " + name + " ?");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                DatabaseHelper myDB = new DatabaseHelper(UpdateActivity.this);
+                myDB.deleteOneRow(id);
+                finish();
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
 
             }
         });
-
+        builder.create().show();
     }
 }
